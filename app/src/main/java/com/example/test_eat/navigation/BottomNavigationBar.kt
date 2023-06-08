@@ -27,7 +27,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         val currentRoute = navBackStackEntry?.destination?.route
         items.forEach{ item ->
             BottomNavigationItem(
-                selected = currentRoute == item.route,
+                selected = currentRoute == item.route || currentRoute?.startsWith(item.route) == true,
                 onClick = {
                     navController.navigate(item.route){
                         navController.graph.startDestinationRoute?.let { route ->
