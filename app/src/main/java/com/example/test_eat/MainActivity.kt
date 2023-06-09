@@ -28,16 +28,12 @@ class MainActivity : ComponentActivity() {
                 val navController : NavHostController = rememberNavController()
 
                 Scaffold(
-                    bottomBar = {
-                        BottomNavigationBar(
-                        navController
-                    ) },
+                    bottomBar = { BottomNavigationBar(navController) },
                     content = { padding ->
                         Box(modifier = Modifier.padding(padding)) {
                             // Показываем контент
                             SetupNavController(
                                 navController = navController,
-                                viewModel = viewModel
                             )
                         }
                     }

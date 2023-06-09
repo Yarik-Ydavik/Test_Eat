@@ -4,11 +4,9 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,9 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,16 +30,30 @@ import com.example.test_eat.data.Kitchens_data.categor
 import com.example.test_eat.data.filter_button.filter_buttons
 import com.example.test_eat.navigation.TopBar2
 import com.example.test_eat.ui.theme.sf_font
+import com.example.test_eat.viewmodels.BagViewModel
 import com.example.test_eat.viewmodels.MainViewModel
 
 @Composable
-fun CATEGORYA_SCREEN(card: categor, navController: NavHostController, viewModel: MainViewModel) {
+fun CATEGORYA_SCREEN(
+    card: categor,
+    navController: NavHostController,
+    viewModel: MainViewModel,
+    viewModel2: BagViewModel
+) {
+
     val openDialog = remember { mutableStateOf(false) }
     var indexDish by remember { mutableStateOf(0) }
 
-    val buttonStates = remember { mutableStateListOf<Boolean>() }
+    val buttonStates = remember { mutableStateListOf<Boolean>(true) }
     var buttonTags = remember { mutableStateListOf<String>() }
     filter_buttons.forEach { buttonStates.add(false) }
+
+    val filterd_Dishes =
+        if ( buttonTags.size == 0 || buttonTags.contains("Все меню") ){
+            viewModel.dishes.value
+        } else {
+            viewModel.dishes.value?.filter { dish -> dish.tegs.containsAll(buttonTags) }
+        }
     Column {
         TopBar2(navController, card.name)
         Column(
@@ -86,88 +96,46 @@ fun CATEGORYA_SCREEN(card: categor, navController: NavHostController, viewModel:
                 columns = GridCells.Fixed(3),
                 contentPadding = PaddingValues(10.dp)
             ){
-                viewModel.dishes.value?.let {
-                    items(it.size){ index ->
-                        if (buttonTags.size == 0 || buttonTags.contains("Всё меню")){
-                            Column(modifier = Modifier
-                                .padding(6.dp)
-                                .width(119.dp)
-                                .height(150.dp)) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(109.dp)
-                                        .clip(RoundedCornerShape(10))
-                                        .background(Color(red = 248, green = 247, blue = 245))
-                                        .clickable {
-                                            indexDish = index
-                                            openDialog.value = true
 
-                                        },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Image(
-                                        painter =
-                                        rememberAsyncImagePainter(
-                                            ImageRequest.Builder(LocalContext.current)
-                                                .data(data = if (viewModel.dishes.value!![index].image_url != "") viewModel.dishes.value!![index].image_url else viewModel.dishes.value!![index].description).apply(block = fun ImageRequest.Builder.() {
-                                                    crossfade(true)
-                                                    placeholder(R.drawable.bag_icon) // указываем изображение-заглушку
-                                                }).build()
-                                        ),
-                                        modifier = Modifier.size(90.dp),
-                                        contentDescription = viewModel.dishes.value!![index].name,
-                                        contentScale = ContentScale.FillBounds
-                                    )
-                                }
-                                Text(
-                                    text = viewModel.dishes.value!![index].name,
-                                    fontFamily = sf_font,
-                                    fontWeight = FontWeight(400),
-                                    fontSize = 14.sp
+                viewModel.dishes.value?.let { dishes ->
+
+                    items(filterd_Dishes!!.size){ index ->
+                        Column(modifier = Modifier
+                            .padding(6.dp)
+                            .width(119.dp)
+                            .height(150.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .size(109.dp)
+                                    .clip(RoundedCornerShape(10))
+                                    .background(Color(red = 248, green = 247, blue = 245))
+                                    .clickable {
+                                        indexDish = index
+                                        openDialog.value = true
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    painter =
+                                    rememberAsyncImagePainter(
+                                        ImageRequest.Builder(LocalContext.current)
+                                            .data(data = if (filterd_Dishes!![index].image_url != "") filterd_Dishes[index].image_url else filterd_Dishes[index].description).apply(block = fun ImageRequest.Builder.() {
+                                                crossfade(true)
+                                                placeholder(R.drawable.bag_icon) // указываем изображение-заглушку
+                                            }).build()
+                                    ),
+                                    modifier = Modifier.size(90.dp),
+                                    contentDescription = filterd_Dishes[index].name,
+                                    contentScale = ContentScale.Fit
                                 )
-
                             }
-                        }else{
-                            if (viewModel.dishes.value!![index].tegs.containsAll(buttonTags)){
-                                Column(modifier = Modifier
-                                    .padding(6.dp)
-                                    .width(119.dp)
-                                    .height(150.dp)) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(109.dp)
-                                            .clip(RoundedCornerShape(10))
-                                            .background(Color(red = 248, green = 247, blue = 245))
-                                            .clickable {
-                                                indexDish = index
-                                                openDialog.value = true
+                            Text(
+                                text = filterd_Dishes!![index].name,
+                                fontFamily = sf_font,
+                                fontWeight = FontWeight(400),
+                                fontSize = 14.sp
+                            )
 
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Image(
-                                            painter =
-                                            rememberAsyncImagePainter(
-                                                ImageRequest.Builder(LocalContext.current)
-                                                    .data(data = if (viewModel.dishes.value!![index].image_url != "") viewModel.dishes.value!![index].image_url else viewModel.dishes.value!![index].description).apply(block = fun ImageRequest.Builder.() {
-                                                        crossfade(true)
-                                                        placeholder(R.drawable.bag_icon) // указываем изображение-заглушку
-                                                    }).build()
-                                            ),
-                                            modifier = Modifier.size(90.dp),
-                                            contentDescription = viewModel.dishes.value!![index].name,
-                                            contentScale = ContentScale.FillBounds
-                                        )
-                                    }
-                                    Text(
-                                        text = viewModel.dishes.value!![index].name,
-                                        fontFamily = sf_font,
-                                        fontWeight = FontWeight(400),
-                                        fontSize = 14.sp
-                                    )
-
-                                }
-                            }
                         }
                     }
                 }
@@ -205,13 +173,13 @@ fun CATEGORYA_SCREEN(card: categor, navController: NavHostController, viewModel:
                                         painter =
                                         rememberAsyncImagePainter(
                                             ImageRequest.Builder(LocalContext.current)
-                                                .data(data = if (viewModel.dishes.value!![indexDish].image_url != "") viewModel.dishes.value!![indexDish].image_url else viewModel.dishes.value!![indexDish].description).apply(block = fun ImageRequest.Builder.() {
+                                                .data(data = if (filterd_Dishes!![indexDish].image_url != "") filterd_Dishes!![indexDish].image_url else filterd_Dishes!![indexDish].description).apply(block = fun ImageRequest.Builder.() {
                                                     crossfade(true)
                                                     placeholder(R.drawable.bag_icon) // указываем изображение-заглушку
                                                 }).build()
                                         ),
                                         modifier = Modifier.size(180.dp),
-                                        contentDescription = viewModel.dishes.value!![indexDish].name,
+                                        contentDescription = filterd_Dishes!![indexDish].name,
                                         contentScale = ContentScale.Fit
                                     )
                                 }
@@ -252,7 +220,7 @@ fun CATEGORYA_SCREEN(card: categor, navController: NavHostController, viewModel:
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = viewModel.dishes.value!![indexDish].name,
+                                    text = filterd_Dishes!![indexDish].name,
                                     fontFamily = sf_font,
                                     color = Color.Black,
                                     fontSize = 16.sp,
@@ -268,7 +236,7 @@ fun CATEGORYA_SCREEN(card: categor, navController: NavHostController, viewModel:
                                     horizontalArrangement = Arrangement.Start
                                 ) {
                                     Text(
-                                        text = "${viewModel.dishes.value!![indexDish].price} ₽ ",
+                                        text = "${filterd_Dishes!![indexDish].price} ₽ ",
                                         fontFamily = sf_font,
                                         color = Color.Black,
                                         fontSize = 15.sp,
@@ -276,7 +244,7 @@ fun CATEGORYA_SCREEN(card: categor, navController: NavHostController, viewModel:
                                         overflow = TextOverflow.Ellipsis,
                                     )
                                     Text(
-                                        text = "• ${viewModel.dishes.value!![indexDish].weight}г",
+                                        text = "• ${filterd_Dishes!![indexDish].weight}г",
                                         fontFamily = sf_font,
                                         color = Color.LightGray,
                                         fontSize = 15.sp,
@@ -285,7 +253,7 @@ fun CATEGORYA_SCREEN(card: categor, navController: NavHostController, viewModel:
                                     )
                                 }
                                 Text(
-                                    viewModel.dishes.value!![indexDish].description,
+                                    filterd_Dishes!![indexDish].description,
                                     fontFamily = sf_font,
                                     color = Color.Gray,
                                     fontSize = 13.sp,
@@ -293,7 +261,17 @@ fun CATEGORYA_SCREEN(card: categor, navController: NavHostController, viewModel:
                                     overflow = TextOverflow.Ellipsis,
 
                                 )
-                                Button(onClick = { /*TODO*/ }) {
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Button(
+                                    onClick = {
+                                        viewModel2.addToBag(item = filterd_Dishes[indexDish])
+                                        openDialog.value = false
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color(red = 51, green = 100, blue = 224),
+                                        contentColor = Color(red = 248, green = 247, blue = 245)
+                                    )
+                                ) {
                                     Text(text = "Добавить в корзину")
                                 }
                             }

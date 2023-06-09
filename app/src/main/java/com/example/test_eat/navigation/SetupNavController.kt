@@ -1,6 +1,7 @@
 package com.example.test_eat.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -9,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.test_eat.navigation.screens.CATEGORYA_SCREEN
 import com.example.test_eat.navigation.screens.HOME_SCREEN
 import com.example.test_eat.utils.Constants
+import com.example.test_eat.viewmodels.BagViewModel
 import com.example.test_eat.viewmodels.MainViewModel
 
 // Маршрутизатор для приложения
@@ -16,14 +18,15 @@ import com.example.test_eat.viewmodels.MainViewModel
 fun SetupNavController(
     navController: NavHostController,
     startDestination: String = Constants.NavigationItem.Home.route,
-    viewModel: MainViewModel
 ){
+    val viewModel = viewModel<MainViewModel>()
+    val viewModel2 = viewModel<BagViewModel>()
     NavHost(
         navController = navController,
         startDestination = startDestination
     ){
         composable( route = Constants.NavigationItem.Home.route ){
-            HOME_SCREEN( navcontroller = navController , viewModel = viewModel)
+            HOME_SCREEN( navcontroller = navController)
         }
         composable(
             route = Constants.NavigationItem.Home.route + "/{id}",
@@ -35,12 +38,13 @@ fun SetupNavController(
                 CATEGORYA_SCREEN(
                     card = card,
                     navController = navController,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    viewModel2 = viewModel2
                 )
             }
         }
         composable( route = Constants.NavigationItem.Search.route ){ SEARCH_SCREEN() }
-        composable( route = Constants.NavigationItem.Basket.route ){ BASKET_SCREEN() }
+        composable( route = Constants.NavigationItem.Basket.route ){ BASKET_SCREEN(viewModel2) }
         composable( route = Constants.NavigationItem.Profile.route ){ PROFILE_SCREEN() }
     }
 }

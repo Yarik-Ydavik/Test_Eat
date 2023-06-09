@@ -8,8 +8,8 @@ data class filter_button(
 
 val filter_buttons = listOf<filter_button>(
     filter_button(
-        name = "Всё меню",
-        enabled = false
+        name = "Все меню",
+        enabled = true
     ),
     filter_button(
         name = "Салаты",

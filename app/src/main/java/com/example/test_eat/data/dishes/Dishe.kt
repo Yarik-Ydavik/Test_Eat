@@ -11,5 +11,6 @@ data class Dishe(
     val name: String,
     val price: Int,
     val tegs: List<String>,
-    val weight: Int
+    val weight: Int,
+    var count : Int = 1
 )
