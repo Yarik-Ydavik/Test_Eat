@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -27,10 +28,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.test_eat.R
+import com.example.test_eat.data.dishes.Dishe
 import com.example.test_eat.viewmodels.BagViewModel
 
 @SuppressLint("MutableCollectionMutableState")
@@ -42,6 +43,9 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
 
     var price by remember { mutableStateOf(elements?.sumOf { it.price * it.count } ?: 0) }
 
+    LaunchedEffect(key1 = value){
+        elements?.let { viewModel2.refreshBag(it as MutableList<Dishe>) }
+    }
     Column() {
         TopBar1()
         Column(
@@ -54,7 +58,7 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                 ) {
-                    items(elements!!.size) { index ->
+                    items(elements!!) { item ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -73,14 +77,14 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                     painter =
                                     rememberAsyncImagePainter(
                                         ImageRequest.Builder(LocalContext.current)
-                                            .data(data = if (elements!![index].image_url != "") elements!![index].image_url else elements!![index].description)
+                                            .data(data = if (item.image_url != "") item.image_url else item.description)
                                             .apply(block = fun ImageRequest.Builder.() {
                                                 crossfade(true)
                                                 placeholder(R.drawable.bag_icon)
                                             }).build()
                                     ),
                                     modifier = Modifier.size(58.dp),
-                                    contentDescription = elements!![index].name,
+                                    contentDescription = item.name,
                                     contentScale = ContentScale.Fit
                                 )
                             }
@@ -93,7 +97,7 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = elements!![index].name,
+                                    text = item.name,
                                     color = Color.Black,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight(400),
@@ -108,14 +112,14 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "${elements!![index].price} ₽ ",
+                                        text = "${item.price} ₽ ",
                                         color = Color.Black,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight(400),
                                         overflow = TextOverflow.Ellipsis,
                                     )
                                     Text(
-                                        text = "• ${elements!![index].weight}г",
+                                        text = "• ${item.weight}г",
                                         color = Color.LightGray,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight(200),
@@ -143,12 +147,13 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                         .height(24.dp)
                                         .width(24.dp)
                                         .clickable {
-                                            if (elements!![index].count - 1 < 1) viewModel2.deleteFromBag(
-                                                elements!![index]
-                                            )
-                                            else price -= elements!![index].price
+                                            if (item.count - 1 < 1){
+                                                viewModel2.deleteFromBag(item)
+                                            }
+                                            else price -= item.price
+                                            value -= 1
 
-                                            viewModel2.decreaseCount(index)
+                                            viewModel2.decreaseCount(item)
                                         }
                                     ) {
                                         Icon(Icons.Default.Remove, contentDescription = "Minus")
@@ -158,11 +163,9 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                             .height(20.dp)
                                             .width(20.dp)
                                     ) {
-                                        viewModel2.bag.observeForever { it ->
-                                            value = it[index].count
-                                        }
+
                                         Text(
-                                            text = list!![index].count.toString(),
+                                            text = item.count.toString(),
                                             fontSize = 16.sp,
                                             textAlign = TextAlign.Center
                                         )
@@ -172,8 +175,9 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                         .height(24.dp)
                                         .width(24.dp)
                                         .clickable {
-                                            price += elements!![index].price
-                                            viewModel2.increaseCount(index)
+                                            price += item.price
+                                            value += 1
+                                            viewModel2.increaseCount(item)
                                         }
                                     ) {
                                         Icon(Icons.Default.Add, contentDescription = "Plus")

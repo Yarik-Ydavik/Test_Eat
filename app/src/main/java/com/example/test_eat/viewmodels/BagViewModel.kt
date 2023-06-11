@@ -16,8 +16,11 @@ class BagViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(){
     private val _bag = MutableLiveData<MutableList<Dishe>>(mutableListOf())
-    val bag: LiveData<MutableList<Dishe>> = _bag
+    val bag: LiveData<List<Dishe>> = _bag as LiveData<List<Dishe>>
 
+    fun refreshBag(newBag : MutableList<Dishe>){
+        _bag.value = newBag
+    }
     fun addToBag(item: Dishe) {
         val currentList = _bag.value ?: mutableListOf()
         currentList.add(item)
@@ -28,16 +31,19 @@ class BagViewModel(
         currentList.remove(item)
         _bag.value = currentList
     }
-    fun increaseCount(index : Int ){
+    fun increaseCount(item : Dishe ){
         val currentList = _bag.value ?: mutableListOf()
-        val dishe = currentList[index]
+        val dishe = currentList[currentList.indexOfFirst { it.id == item.id }]
         dishe.count +=1
         _bag.value = currentList
     }
-    fun decreaseCount(index : Int ){
+    fun decreaseCount(item: Dishe){
         val currentList = _bag.value ?: mutableListOf()
-        val dishe = currentList[index]
-        dishe.count -=1
-        _bag.value = currentList
+        val index = currentList.indexOfFirst { it.id == item.id }
+        if (index != -1) {
+            val dishe = currentList[index]
+            dishe.count -= 1
+            _bag.value = currentList
+        }
     }
 }
