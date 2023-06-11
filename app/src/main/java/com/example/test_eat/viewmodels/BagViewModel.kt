@@ -15,13 +15,17 @@ import com.example.test_eat.data.dishes.Dishe
 class BagViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(){
-
     private val _bag = MutableLiveData<MutableList<Dishe>>(mutableListOf())
     val bag: LiveData<MutableList<Dishe>> = _bag
 
     fun addToBag(item: Dishe) {
         val currentList = _bag.value ?: mutableListOf()
         currentList.add(item)
+        _bag.value = currentList
+    }
+    fun deleteFromBag(item: Dishe){
+        val currentList = _bag.value ?: mutableListOf()
+        currentList.remove(item)
         _bag.value = currentList
     }
     fun increaseCount(index : Int ){

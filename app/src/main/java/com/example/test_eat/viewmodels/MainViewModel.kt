@@ -1,5 +1,8 @@
 package com.example.test_eat.viewmodels
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -18,17 +21,24 @@ class MainViewModel(
     val kitchens: MutableLiveData<List<categor>> = savedStateHandle.getLiveData("info1", emptyList<categor>())
     val dishes: MutableLiveData<List<Dishe>> = savedStateHandle.getLiveData("info2", emptyList<Dishe>())
 
+    var isLoading : Boolean by mutableStateOf(false)
+        private set
+
     init {
+        isLoading = true
         viewModelScope.launch {
             val response1 = HomeRequest().getListKitchen().сategories
             val response2 = DishesRequest().getListDishes().dishes
             FillKitchens(response1)
             FillDishes(response2)
+            isLoading = false
         }
     }
     fun loadKitchens(){
+        isLoading = true
         viewModelScope.launch {
             savedStateHandle["info1"] = HomeRequest().getListKitchen().сategories
+            isLoading = false
         }
     }
     private fun FillKitchens(response: List<categor>) {

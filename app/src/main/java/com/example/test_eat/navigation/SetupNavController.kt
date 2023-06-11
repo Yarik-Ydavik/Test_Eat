@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.test_eat.data.Kitchens_data.categor
 import com.example.test_eat.navigation.screens.CATEGORYA_SCREEN
 import com.example.test_eat.navigation.screens.HOME_SCREEN
 import com.example.test_eat.utils.Constants

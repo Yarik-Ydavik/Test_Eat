@@ -15,6 +15,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -37,13 +39,9 @@ import com.example.test_eat.viewmodels.BagViewModel
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun BASKET_SCREEN(viewModel2: BagViewModel) {
-    var indexDish by remember { mutableStateOf(0) }
-
-    val elements by remember { mutableStateOf(viewModel2.bag.value) }
-    var FoodElements = remember { mutableStateListOf<Int>() }
-    var FoodElementsCounter = remember { mutableStateListOf<Int>() }
-
-    elements!!.forEach { _ -> FoodElements.add(1) }
+    val list = viewModel2.bag.observeAsState().value
+    val elements by remember { mutableStateOf(list) }
+    var value by remember { mutableStateOf(1) }
 
     var price by remember { mutableStateOf(elements?.sumOf { it.price * it.count } ?: 0) }
 
@@ -55,7 +53,7 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (viewModel2.bag.value != null && viewModel2.bag.value!!.isNotEmpty()) {
+            if (elements != null && elements!!.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                 ) {
@@ -148,15 +146,12 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                         .height(24.dp)
                                         .width(24.dp)
                                         .clickable {
-
-                                            if (FoodElements[index] - 1 < 1) FoodElements[index] = 1
-                                            else {
-                                                FoodElements[index] -= 1
-                                                price -= elements!![index].price
-                                            }
+                                            if (elements!![index].count - 1 < 1) viewModel2.deleteFromBag(
+                                                elements!![index]
+                                            )
+                                            else price -= elements!![index].price
 
                                             viewModel2.decreaseCount(index)
-
                                         }
                                     ) {
                                         Icon(Icons.Default.Remove, contentDescription = "Minus")
@@ -166,8 +161,11 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                             .height(20.dp)
                                             .width(20.dp)
                                     ) {
+                                        viewModel2.bag.observeForever { it ->
+                                            value = it[index].count
+                                        }
                                         Text(
-                                            text = FoodElements[index].toString(),
+                                            text = list!![index].count.toString(),
                                             fontSize = 16.sp,
                                             textAlign = TextAlign.Center
                                         )
@@ -177,7 +175,6 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                         .height(24.dp)
                                         .width(24.dp)
                                         .clickable {
-                                            FoodElements[index] += 1
                                             price += elements!![index].price
                                             viewModel2.increaseCount(index)
                                         }
