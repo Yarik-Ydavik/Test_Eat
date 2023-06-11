@@ -27,13 +27,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.test_eat.R
-import com.example.test_eat.data.dishes.Dishe
-import com.example.test_eat.ui.theme.sf_font
 import com.example.test_eat.viewmodels.BagViewModel
 
 @SuppressLint("MutableCollectionMutableState")

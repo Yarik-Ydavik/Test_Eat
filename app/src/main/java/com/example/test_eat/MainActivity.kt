@@ -6,19 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.test_eat.data.Kitchens_data.categor
 import com.example.test_eat.navigation.BottomNavigationBar
 import com.example.test_eat.navigation.SetupNavController
 import com.example.test_eat.ui.theme.Test_EatTheme
+import com.example.test_eat.viewmodels.BagViewModel
 import com.example.test_eat.viewmodels.MainViewModel
 
 class MainActivity : ComponentActivity() {
     private val viewModel = MainViewModel(savedStateHandle = SavedStateHandle())
-    private lateinit var listKitchens: List<categor>
+    private val bagViewModel = BagViewModel(savedStateHandle = SavedStateHandle())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -32,15 +31,15 @@ class MainActivity : ComponentActivity() {
                             // Показываем контент
                             SetupNavController(
                                 navController = navController,
+                                viewModel = viewModel,
+                                bagViewModel = bagViewModel
                             )
                         }
                     }
                 )
             }
         }
-        viewModel.kitchens.observe(this, Observer {
-            listKitchens = it
-        })
+
     }
 }
 
