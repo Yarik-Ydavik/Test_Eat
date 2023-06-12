@@ -149,6 +149,7 @@ fun BASKET_SCREEN(viewModel2: BagViewModel) {
                                         .clickable {
                                             if (item.count - 1 < 1){
                                                 viewModel2.deleteFromBag(item)
+                                                price -= item.price
                                             }
                                             else price -= item.price
                                             value -= 1
